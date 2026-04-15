@@ -1,0 +1,20 @@
+@baseUrl = http://localhost:3003
+
+###
+POST {{baseUrl}}/test/send-message
+Content-Type: application/json
+
+{
+    "orderId": "test-order-123",
+    "userId": "test-user-123",
+    "amount": 199.99,
+    "items": [
+        {
+            "productId": "product-1",
+            "quantity": 2,
+            "price": 99.99
+        }
+    ],
+    "paymentMethod": "credit_card",
+    "description": "Mensagem de teste"
+}
