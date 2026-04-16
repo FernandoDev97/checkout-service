@@ -33,26 +33,26 @@ export class RabbitmqService implements OnModuleInit, OnModuleDestroy {
 
       this.connection = await amqp.connect(rabbitmqUrl);
       this.channel = await this.connection.createChannel();
-      this.logger.log('✅ Connected to RabbitMQ successfully');
+      this.logger.log('✅ Conectado ao RabbitMQ com sucesso');
 
       this.connection.on('error', (err) => {
-        this.logger.error('❌ RabbitMQ connection error:', err);
+        this.logger.error('❌ Erro de conexão com RabbitMQ:', err);
       });
 
       this.connection.on('close', () => {
-        this.logger.warn('⚠️ RabbitMQ connection closed');
+        this.logger.warn('⚠️ Conexão com RabbitMQ fechada');
       });
 
       this.connection.on('blocked', (reason) => {
-        this.logger.warn('⚠️ RabbitMQ connection blocked:', reason);
+        this.logger.warn('⚠️ Conexão com RabbitMQ bloqueada:', reason);
       });
 
       this.connection.on('unblocked', () => {
-        this.logger.log('✅ RabbitMQ connection unblocked');
+        this.logger.log('✅ Conexão com RabbitMQ desbloqueada');
       });
     } catch (error) {
       this.logger.warn(
-        '⚠️ Failed to connect to RabbitMQ, cotinuing wihout message queue:',
+        '⚠️ Falha ao conectar ao RabbitMQ, continuando sem fila de mensagens:',
         error.message || error,
       );
     }
@@ -62,15 +62,15 @@ export class RabbitmqService implements OnModuleInit, OnModuleDestroy {
     try {
       if (this.channel) {
         await this.channel.close();
-        this.logger.log('✅ RabbitMQ channel closed');
+        this.logger.log('✅ Canal do RabbitMQ fechado');
       }
 
       if (this.connection) {
         await this.connection.close();
-        this.logger.log('✅ Disconnected from RabbitMQ');
+        this.logger.log('✅ Desconectado do RabbitMQ');
       }
     } catch (error) {
-      this.logger.error('❌ Error disconnecting from RabbitMQ:', error);
+      this.logger.error('❌ Erro ao desconectar do RabbitMQ:', error);
     }
   }
 
@@ -89,7 +89,9 @@ export class RabbitmqService implements OnModuleInit, OnModuleDestroy {
   ): Promise<void> {
     try {
       if (!this.channel) {
-        this.logger.warn('⚠️ RabbitMQ channel not available, skipping message');
+        this.logger.warn(
+          '⚠️ Canal do RabbitMQ indisponível, mensagem ignorada',
+        );
         return;
       }
 
@@ -112,11 +114,11 @@ export class RabbitmqService implements OnModuleInit, OnModuleDestroy {
       }
 
       this.logger.log(
-        `✅ Message published to ${exchange} with routing key ${routingKey}`,
+        `✅ Mensagem publicada em ${exchange} com routing key ${routingKey}`,
       );
-      this.logger.debug(`Message content: ${JSON.stringify(message)}`);
+      this.logger.debug(`Conteúdo da mensagem: ${JSON.stringify(message)}`);
     } catch (error) {
-      this.logger.error('❌ Error publishing message:', error);
+      this.logger.error('❌ Erro ao publicar mensagem:', error);
     }
   }
 
@@ -129,7 +131,7 @@ export class RabbitmqService implements OnModuleInit, OnModuleDestroy {
     try {
       if (!this.channel) {
         this.logger.warn(
-          '⚠️ RabbitMQ channel not available, skipping subscription',
+          '⚠️ Canal do RabbitMQ indisponível, assinatura ignorada',
         );
         throw new Error('RabbitMQ channel not available');
       }
@@ -149,17 +151,19 @@ export class RabbitmqService implements OnModuleInit, OnModuleDestroy {
           try {
             const message: unknown = JSON.parse(msg.content.toString());
             this.logger.log(
-              `Message received from queue ${queueName}: ${JSON.stringify(message)}`,
+              `Mensagem recebida da fila ${queueName}: ${JSON.stringify(message)}`,
             );
-            this.logger.debug(`Message content: ${JSON.stringify(message)}`);
+            this.logger.debug(
+              `Conteúdo da mensagem: ${JSON.stringify(message)}`,
+            );
             await callback(message);
             this.channel.ack(msg);
             this.logger.log(
-              `Message processed successfully from queue: ${queueName}`,
+              `Mensagem processada com sucesso da fila: ${queueName}`,
             );
           } catch (error) {
             this.logger.error(
-              `Error processing message from queue ${queueName}:`,
+              `Erro ao processar mensagem da fila ${queueName}:`,
               error,
             );
             this.channel.nack(msg, false, false);
@@ -168,10 +172,10 @@ export class RabbitmqService implements OnModuleInit, OnModuleDestroy {
       });
 
       this.logger.log(
-        `✅ Subscribed to queue ${queueName} with routing key ${routingKey}`,
+        `✅ Inscrito na fila ${queueName} com routing key ${routingKey}`,
       );
     } catch (error) {
-      this.logger.error(`Error subscribing to queue ${queueName}:`, error);
+      this.logger.error(`Erro ao se inscrever na fila ${queueName}:`, error);
     }
   }
 }

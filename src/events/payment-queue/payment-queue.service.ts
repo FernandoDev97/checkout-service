@@ -12,7 +12,7 @@ export class PaymentQueueService {
   constructor(private readonly rabbitmqService: RabbitmqService) {}
 
   async publishPaymentOrder(paymentOrder: PaymentOrderMessage): Promise<void> {
-    this.logger.log(`Publishing payment order: ${paymentOrder.orderId}`);
+    this.logger.log(`Publicando ordem de pagamento: ${paymentOrder.orderId}`);
 
     try {
       const enrichementMessage: PaymentOrderMessage = {
@@ -31,11 +31,11 @@ export class PaymentQueueService {
       );
 
       this.logger.log(
-        `Payment order details: ${JSON.stringify(enrichementMessage)}`,
+        `Detalhes da ordem de pagamento: ${JSON.stringify(enrichementMessage)}`,
       );
     } catch (error) {
       this.logger.error(
-        `Error publishing payment order: ${paymentOrder.orderId}`,
+        `Erro ao publicar ordem de pagamento: ${paymentOrder.orderId}`,
         error,
       );
       throw error;
@@ -44,25 +44,25 @@ export class PaymentQueueService {
 
   private validatePaymentOrder(paymentOrder: PaymentOrderMessage): boolean {
     if (!paymentOrder.orderId) {
-      this.logger.error('❌ Invalid payment order: missing orderId');
+      this.logger.error('❌ Ordem de pagamento inválida: orderId ausente');
 
       return false;
     }
 
     if (!paymentOrder.userId) {
-      this.logger.error('❌ Invalid payment order: missing userId');
+      this.logger.error('❌ Ordem de pagamento inválida: userId ausente');
 
       return false;
     }
 
     if (!paymentOrder.amount || paymentOrder.amount <= 0) {
-      this.logger.error('❌ Invalid payment order: invalid amount');
+      this.logger.error('❌ Ordem de pagamento inválida: valor inválido');
 
       return false;
     }
 
     if (!paymentOrder.items || paymentOrder.items.length === 0) {
-      this.logger.error('❌ Invalid payment order: no items');
+      this.logger.error('❌ Ordem de pagamento inválida: sem itens');
 
       return false;
     }
